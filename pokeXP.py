@@ -35,6 +35,20 @@ def visualize_color(rgb_color):
         plt.title(f"RGB Color: {rgb_color}")
         plt.axis("off")
         plt.show()
+        
+def getPokemonName():
+    pokemonNameRegion = (2249, 151, 300, 20)
+    x, y, width, height = pokemonNameRegion
+    nameScreenshot = ImageGrab.grab(bbox=(x, y, x + width, y + height),include_layered_windows=False, all_screens=True)
+    tesseractResult = pytesseract.image_to_string(nameScreenshot, config='--psm 7')
+    #remove level from string
+    if 'Lv.' in tesseractResult:
+        tesseractResult = tesseractResult.split('Lv')[0]
+    print(tesseractResult)
+    return tesseractResult
+
+def isShiny(pokemonString):
+    return 'shiny' in pokemonString.lower()
 
 #keyboard functions
 def battleInitializer():
@@ -104,7 +118,7 @@ def runUpDown():
     
     time.sleep(0.1)
 
-def directionStep(direction):
+def directionStep(direction, repeats=1):
     # Mapping directions to Key attributes
     direction_map = {
         'left': Key.left,
@@ -115,10 +129,12 @@ def directionStep(direction):
     
     if direction in direction_map:
         key_to_press = direction_map[direction]
-        keyboard.press(key_to_press)
-        time.sleep(0.1)
-        keyboard.release(key_to_press)
-        time.sleep(0.1)
+        
+        for _ in range(repeats):
+            keyboard.press(key_to_press)
+            time.sleep(0.1)
+            keyboard.release(key_to_press)
+            time.sleep(0.1)
     else:
         print(f"Invalid direction: {direction}")
 
@@ -134,27 +150,32 @@ keyboard = KeyboardController()
 #print(get_pixel_color(2219, 185))
 
 time.sleep(2)
-# pokemonNameRegion = (2249, 151, 300, 30)
-# x, y, width, height = pokemonNameRegion
-# screenshot = ImageGrab.grab(bbox=(x, y, x + width, y + height),include_layered_windows=False, all_screens=True)
-# screenshot.save("screenshot.png")
-# reader = easyocr.Reader(['en'])
-# result = reader.readtext('screenshot.png', detail = 0)
-# print(result)
 
 while True:
-    runUpDown()
+    directionStep('left')
+    directionStep('right')
     #battle check
     battleStartCheck = get_pixel_color(2219, 185) 
     print(get_pixel_color(2219, 185))
     if battleStartCheck == (48, 48, 48) or battleStartCheck == (47, 47, 47):
-        #screenshot = pyautogui.screenshot(region=(pokemonNameRegion))
+        #shiny check
+        isShinyPokemon = isShiny(getPokemonName())
+        if isShinyPokemon:
+            print('Shiny!')
+            while True:
+                directionStep('up')
+                time.sleep(0.5)
+                directionStep('down')
+        else:
+            print('Not shiny!')
+
+        #battle sequence
         moveCounter = 25
         while True:
             battleInitializer()
             #first move
             if moveCounter <= 25:
-                topLeftMoveSelect()
+                topRightMoveSelect()
             #second move
             elif moveCounter <= 60:
                 topLeftMoveSelect()
