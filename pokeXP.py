@@ -40,12 +40,22 @@ def getPokemonName():
     pokemonNameRegion = (2249, 151, 300, 20)
     x, y, width, height = pokemonNameRegion
     nameScreenshot = ImageGrab.grab(bbox=(x, y, x + width, y + height),include_layered_windows=False, all_screens=True)
+    #for testing
+    nameScreenshot.save('testScreenshot.png')
     tesseractResult = pytesseract.image_to_string(nameScreenshot, config='--psm 7')
+    
     #remove level from string
     if 'Lv.' in tesseractResult:
         tesseractResult = tesseractResult.split('Lv')[0]
+    
     print(tesseractResult)
+    
+    # Writing the result to a file named pokemon_names.txt in append mode.
+    with open("pokemon_names.txt", "a") as file:
+        file.write(tesseractResult + "\n")
+    
     return tesseractResult
+
 
 def isShiny(pokemonString):
     return 'shiny' in pokemonString.lower()
@@ -138,55 +148,60 @@ def directionStep(direction, repeats=1):
     else:
         print(f"Invalid direction: {direction}")
 
-#MAIN LOOP
-window_title = 'PokeMMO'
-#target_window = get_window_by_title(window_title)
-
-#if target_window:
-#target_window.activate()
-
 keyboard = KeyboardController()
 
-#print(get_pixel_color(2219, 185))
+#MAIN LOOP
+def main():
+    window_title = 'PokeMMO'
+    #target_window = get_window_by_title(window_title)
 
-time.sleep(2)
+    #if target_window:
+    #target_window.activate()
 
-while True:
-    directionStep('left')
-    directionStep('right')
-    #battle check
-    battleStartCheck = get_pixel_color(2219, 185) 
-    print(get_pixel_color(2219, 185))
-    if battleStartCheck == (48, 48, 48) or battleStartCheck == (47, 47, 47):
-        #shiny check
-        isShinyPokemon = isShiny(getPokemonName())
-        if isShinyPokemon:
-            print('Shiny!')
+    #print(get_pixel_color(2219, 185))
+
+    time.sleep(2)
+
+    while True:
+        directionStep('left')
+        directionStep('right')
+        #battle check
+        battleStartCheck = get_pixel_color(2219, 185)
+        hordeBattleStartCheck = get_pixel_color(2880, 137) 
+        print(get_pixel_color(2219, 185))
+        if battleStartCheck == (48, 48, 48) or battleStartCheck == (47, 47, 47) or hordeBattleStartCheck == (48, 48, 48) or hordeBattleStartCheck == (47, 47, 47):
+            #shiny check
+            isShinyPokemon = isShiny(getPokemonName())
+            if isShinyPokemon:
+                print('Shiny!')
+                while True:
+                    directionStep('up')
+                    time.sleep(0.5)
+                    directionStep('down')
+            else:
+                print('Not shiny!')
+
+            #battle sequence
+            moveCounter = 25
             while True:
-                directionStep('up')
-                time.sleep(0.5)
-                directionStep('down')
-        else:
-            print('Not shiny!')
-
-        #battle sequence
-        moveCounter = 25
-        while True:
-            battleInitializer()
-            #first move
-            if moveCounter <= 25:
-                topRightMoveSelect()
-            #second move
-            elif moveCounter <= 60:
-                topLeftMoveSelect()
-            
-            #wait for move animations to end
-            time.sleep(6)
-            moveCounter = moveCounter + 1
-            
-            if moveCounter >= 25:
-                moveCounter +=1
-            
-            battleEndCheck = get_pixel_color(2219, 185)
-            if battleEndCheck != (48, 48, 48):
-                break
+                battleInitializer()
+                #first move
+                if moveCounter <= 25:
+                    topRightMoveSelect()
+                #second move
+                elif moveCounter <= 60:
+                    topLeftMoveSelect()
+                
+                #wait for move animations to end
+                time.sleep(6)
+                moveCounter = moveCounter + 1
+                
+                if moveCounter >= 25:
+                    moveCounter +=1
+                
+                battleEndCheck = get_pixel_color(2219, 185)
+                if battleEndCheck != (48, 48, 48):
+                    break
+                
+if __name__ == "__main__":
+    main()
