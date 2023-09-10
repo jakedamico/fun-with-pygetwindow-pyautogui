@@ -2,13 +2,6 @@ import pokeXP
 import time
 from pynput.keyboard import Controller as KeyboardController
 
-def runFromBattle():
-    pokeXP.directionStep('right', 4)
-    time.sleep(0.5)
-    keyboard.press('z')
-    time.sleep(0.25)
-    keyboard.release('z')
-
 keyboard = KeyboardController()
 
 #print(get_pixel_color(2219, 185))
@@ -34,6 +27,6 @@ while True:
         else:
             print('Not shiny!')
             time.sleep(10)
-            runFromBattle()
+            pokeXP.runFromBattle()
             #wait to spawn into world
             time.sleep(6)

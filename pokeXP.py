@@ -3,10 +3,9 @@ from pynput.keyboard import Key, Controller as KeyboardController
 import time
 import pyautogui
 import matplotlib.pyplot as plt
-import pydirectinput
 from PIL import Image, ImageGrab
 import pytesseract
-import easyocr
+
 pytesseract.pytesseract.tesseract_cmd = r'C:\Program Files\Tesseract-OCR\tesseract.exe'
 
 #cut for now
@@ -61,6 +60,9 @@ def isShiny(pokemonString):
     return 'shiny' in pokemonString.lower()
 
 #keyboard functions
+def click_location(x, y):
+    pyautogui.click(x, y)
+
 def battleInitializer():
     time.sleep(5)
     keyboard.press(Key.left)
@@ -147,6 +149,13 @@ def directionStep(direction, repeats=1):
             time.sleep(0.1)
     else:
         print(f"Invalid direction: {direction}")
+        
+def runFromBattle():
+    directionStep('right', 4)
+    time.sleep(0.5)
+    keyboard.press('z')
+    time.sleep(0.25)
+    keyboard.release('z')
 
 keyboard = KeyboardController()
 
@@ -165,11 +174,14 @@ def main():
     while True:
         directionStep('left')
         directionStep('right')
-        #battle check
-        battleStartCheck = get_pixel_color(2219, 185)
-        hordeBattleStartCheck = get_pixel_color(2880, 137) 
+        #horde battle check
+        hordeBattleStartCheck = get_pixel_color(2880, 137)
+        if hordeBattleStartCheck == (48, 48, 48) or hordeBattleStartCheck == (47, 47, 47):
+            runFromBattle()
+        #regular battle check
+        battleStartCheck = get_pixel_color(2219, 185) 
         print(get_pixel_color(2219, 185))
-        if battleStartCheck == (48, 48, 48) or battleStartCheck == (47, 47, 47) or hordeBattleStartCheck == (48, 48, 48) or hordeBattleStartCheck == (47, 47, 47):
+        if battleStartCheck == (48, 48, 48) or battleStartCheck == (47, 47, 47):
             #shiny check
             isShinyPokemon = isShiny(getPokemonName())
             if isShinyPokemon:
@@ -186,11 +198,11 @@ def main():
             while True:
                 battleInitializer()
                 #first move
-                if moveCounter <= 25:
-                    topRightMoveSelect()
+                if moveCounter <= 20:
+                    topLeftMoveSelect()
                 #second move
                 elif moveCounter <= 60:
-                    topLeftMoveSelect()
+                    topRightMoveSelect()
                 
                 #wait for move animations to end
                 time.sleep(6)
