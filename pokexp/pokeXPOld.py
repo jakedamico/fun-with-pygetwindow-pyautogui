@@ -61,26 +61,12 @@ def isShiny(pokemonString):
 
 #keyboard functions
 def click_location(x, y):
+    pyautogui.moveTo(x, y, duration=0.5)
+    time.sleep(0.25)
     pyautogui.click(x, y)
 
 def battleInitializer():
-    time.sleep(5)
-    keyboard.press(Key.left)
-    time.sleep(0.5)
-    keyboard.release(Key.left)
-    
-    time.sleep(0.25)
-    
-    keyboard.press(Key.up)
-    time.sleep(0.5)
-    keyboard.release(Key.up)
-    
-    time.sleep(0.25)
-    
-    keyboard.press('z')
-    time.sleep(0.25)
-    keyboard.release('z')
-    
+    click_location(2314, 700)
     time.sleep(0.25)
 
 def topRightMoveSelect():
